@@ -284,7 +284,7 @@ class _LocationSelectState extends State<LocationSelect> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    "\₦500",
+                                    "\₦1000",
                                     style: kMainHeading.copyWith(
                                       color: kMainColor,
                                       fontWeight: FontWeight.bold,
@@ -349,6 +349,9 @@ class _LocationSelectState extends State<LocationSelect> {
                                     ),
                                   ),
                                 ),
+                              ),
+                              SizedBox(
+                                height: 10.0,
                               ),
                             ],
                           ),
