@@ -57,7 +57,7 @@ class _OnBoardingPageState extends State<OnBoardingPage> {
         ),
         PageViewModel(
           title: "Safe Delivery Management",
-          body: "Trust us to delivery in timely fashion",
+          body: "Trust us to deliver in timely fashion",
           image: _buildImage('3.png'),
           decoration: pageDecoration,
         ),
