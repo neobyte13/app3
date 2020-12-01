@@ -1,5 +1,6 @@
 import 'package:GberaaDelivery/screens/track_shipments.dart';
 import 'package:GberaaDelivery/screens/view_shipments.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:GberaaDelivery/screens/home_screen.dart';
 import 'package:GberaaDelivery/screens/location.dart';
@@ -26,7 +27,7 @@ class MyApp extends StatelessWidget {
           primarySwatch: Colors.orange,
           visualDensity: VisualDensity.adaptivePlatformDensity,
         ),
-        initialRoute: '/',
+        initialRoute: '/landing',
         routes: {
           '/': (context) => OnBoardingPage(),
           '/login': (context) => LoginScreen(),
@@ -37,6 +38,31 @@ class MyApp extends StatelessWidget {
           '/shipmentcreate': (context) => ShipmentCreate(),
           '/trackshipments': (context) => TrackShipments(),
           '/location': (context) => LocationSelect(),
+          '/landing': (context) => LandingPage(),
         });
+  }
+}
+
+class LandingPage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder<User>(
+      stream: FirebaseAuth.instance.authStateChanges(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.active) {
+          User user = snapshot.data;
+          if (user == null) {
+            return OnBoardingPage();
+          }
+          return HomeScreen();
+        } else {
+          return Scaffold(
+            body: Center(
+              child: CircularProgressIndicator(),
+            ),
+          );
+        }
+      },
+    );
   }
 }
