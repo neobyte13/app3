@@ -1,5 +1,4 @@
 import 'package:GberaaDelivery/widgets/card_view.dart';
-import 'package:GberaaDelivery/widgets/custom_inputtext.dart';
 import 'package:GberaaDelivery/widgets/drop_down_menu.dart';
 import 'package:flutter/material.dart';
 import '../constants.dart';
