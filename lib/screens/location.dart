@@ -1,11 +1,8 @@
-import 'dart:math';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:GberaaDelivery/constants.dart';
 import 'package:GberaaDelivery/widgets/common_app_bar.dart';
 import 'package:flutter/material.dart';
-import 'package:GberaaDelivery/widgets/custom_input.dart';
 
 class LocationSelect extends StatefulWidget {
   @override
@@ -324,16 +321,9 @@ class _LocationSelectState extends State<LocationSelect> {
                                 child: Center(
                                   child: InkWell(
                                     onTap: () {
-                                      Random random = new Random();
-                                      var curUser =
-                                          FirebaseAuth.instance.currentUser;
-                                      _db
-                                          .collection("ditems")
-                                          .doc(curUser.uid +
-                                              (random.nextInt(9999999) +
-                                                      0000001)
-                                                  .toString())
-                                          .set({
+                                      _db.collection("ditems").doc().set({
+                                        "owner": FirebaseAuth
+                                            .instance.currentUser.email,
                                         "pickup": _pickupController.text,
                                         "delivery": _deliveryController.text,
                                         "notes": _notesController.text,
@@ -345,6 +335,10 @@ class _LocationSelectState extends State<LocationSelect> {
                                         _notesController.clear();
                                         print(
                                             'Success!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
+                                        Navigator.pushNamed(
+                                            context, '/viewshipments');
+                                      }).catchError((onError) {
+                                        print(onError);
                                       });
                                     },
                                     child: Text(
