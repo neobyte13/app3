@@ -1,3 +1,4 @@
+import 'package:GberaaDelivery/screens/track_shipments.dart';
 import 'package:GberaaDelivery/screens/view_shipments.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:GberaaDelivery/screens/home_screen.dart';
@@ -48,6 +49,7 @@ class MyApp extends StatelessWidget {
                   '/newshimpent': (context) => NewShipments(),
                   '/viewshipments': (context) => ViewShipments(),
                   '/shipmentcreate': (context) => ShipmentCreate(),
+                  '/trackshipments': (context) => TrackShipments(),
                   '/location': (context) => LocationSelect(),
                 });
           }

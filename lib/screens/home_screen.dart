@@ -158,6 +158,9 @@ class HomeScreen extends StatelessWidget {
                           maxSize: maxSize,
                           labelText: 'Track Deliveries',
                           imageName: '1.png',
+                          buttontap: () {
+                            Navigator.pushNamed(context, '/trackshipments');
+                          },
                         ),
                         CardView(
                           maxSize: maxSize,
