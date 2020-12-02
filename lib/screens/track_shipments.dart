@@ -24,6 +24,7 @@ class _TrackShipmentsState extends State<TrackShipments> {
             Expanded(
               flex: 2,
               child: Container(
+                width: maxSize.width,
                 decoration: BoxDecoration(
                   color: Colors.grey[100],
                   borderRadius: BorderRadius.only(
