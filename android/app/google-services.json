@@ -1,34 +1,33 @@
 {
   "project_info": {
-    "project_number": "1019979833046",
-    "firebase_url": "https://gberaa-delivery.firebaseio.com",
-    "project_id": "gberaa-delivery",
-    "storage_bucket": "gberaa-delivery.appspot.com"
+    "project_number": "745799776102",
+    "project_id": "gberaa-delivery-79f10",
+    "storage_bucket": "gberaa-delivery-79f10.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:1019979833046:android:aa7b7fe84f89c2579f3377",
+        "mobilesdk_app_id": "1:745799776102:android:d8fe52558174175eb67aa7",
         "android_client_info": {
           "package_name": "com.gberaa.delivery.app3"
         }
       },
       "oauth_client": [
         {
-          "client_id": "1019979833046-8ibk49tgj2a5lvojkvfeoksee4oe2s2m.apps.googleusercontent.com",
+          "client_id": "745799776102-ka38ddqp692m15t14vv5fpqjod0m2n36.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyA8OqUuVRkNin4YjRUv-0A6UCftHlLi_Jo"
+          "current_key": "AIzaSyBvBJE8UB9lPpVYmJz860nmDJE1jgi-5X0"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "1019979833046-8ibk49tgj2a5lvojkvfeoksee4oe2s2m.apps.googleusercontent.com",
+              "client_id": "745799776102-ka38ddqp692m15t14vv5fpqjod0m2n36.apps.googleusercontent.com",
               "client_type": 3
             }
           ]

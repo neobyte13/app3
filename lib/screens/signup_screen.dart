@@ -1,8 +1,7 @@
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:GberaaDelivery/constants.dart';
+import 'package:GberaaDelivery/providers/current_user.dart';
+import 'package:GberaaDelivery/utils/constants.dart';
 import 'package:flutter/material.dart';
-
-final FirebaseAuth _auth = FirebaseAuth.instance;
+import 'package:provider/provider.dart';
 
 class SignupScreen extends StatefulWidget {
   @override
@@ -11,18 +10,32 @@ class SignupScreen extends StatefulWidget {
 
 class _SignupScreenState extends State<SignupScreen> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  final TextEditingController _fullNameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
-  bool _success;
-  String _userEmail;
+  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _confirmPasswordController =
+      TextEditingController();
+
+  void _signUpUser(String email, String password, BuildContext context) async {
+    CurrentUser _currentUser = Provider.of<CurrentUser>(context, listen: false);
+
+    try {
+      if (await _currentUser.signUpUser(email, password)) {
+        Navigator.of(context).pushReplacementNamed('/login');
+      }
+    } catch (e) {
+      print(e);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     Size maxSize = MediaQuery.of(context).size;
     return Scaffold(
       backgroundColor: Colors.white,
-      body: SafeArea(
-        child: Container(
+      body: Builder(
+        builder: (context) => Container(
           margin: EdgeInsets.all(20),
           child: SingleChildScrollView(
             child: Form(
@@ -37,10 +50,19 @@ class _SignupScreenState extends State<SignupScreen> {
                   SizedBox(
                     height: maxSize.height * 0.03,
                   ),
-                  /*InputTextBox(
-                    labeltext: 'Email',
-                    controller: _emailController,
-                  ),**/
+                  TextFormField(
+                    controller: _fullNameController,
+                    decoration: const InputDecoration(labelText: 'Full Name'),
+                    validator: (String value) {
+                      if (value.isEmpty) {
+                        return 'Please enter your full name';
+                      }
+                      return null;
+                    },
+                  ),
+                  SizedBox(
+                    height: maxSize.height * 0.03,
+                  ),
                   TextFormField(
                     controller: _emailController,
                     decoration: const InputDecoration(labelText: 'Email'),
@@ -81,14 +103,20 @@ class _SignupScreenState extends State<SignupScreen> {
                   SizedBox(
                     height: maxSize.height * 0.07,
                   ),
-                  /*CustomButton(
-                    maxSize: maxSize,
-                    bheight: 0.07,
-                    bwidth: 0.7,
-                    buttonText: 'Signup',
-                    pageRoute: '/homescreen',
-                    color: kMainColor,
-                  ),**/
+                  TextFormField(
+                    controller: _confirmPasswordController,
+                    decoration:
+                        const InputDecoration(labelText: 'Confirm Password'),
+                    validator: (String value) {
+                      if (value.isEmpty) {
+                        return 'Please enter a matching password';
+                      }
+                      return null;
+                    },
+                  ),
+                  SizedBox(
+                    height: maxSize.height * 0.07,
+                  ),
                   Container(
                     padding: const EdgeInsets.symmetric(vertical: 16.0),
                     decoration: BoxDecoration(
@@ -112,9 +140,17 @@ class _SignupScreenState extends State<SignupScreen> {
                     child: RaisedButton(
                       color: kMainColor,
                       highlightColor: kMainColor,
-                      onPressed: () async {
-                        if (_formKey.currentState.validate()) {
-                          _register();
+                      onPressed: () {
+                        if (_formKey.currentState.validate() &&
+                            _passwordController.text ==
+                                _confirmPasswordController.text) {
+                          _signUpUser(_emailController.text,
+                              _passwordController.text, context);
+                        } else {
+                          Scaffold.of(context).showSnackBar(SnackBar(
+                            content: Text('Confirm the details you entered'),
+                            duration: Duration(seconds: 2),
+                          ));
                         }
                       },
                       child: Text(
@@ -133,7 +169,7 @@ class _SignupScreenState extends State<SignupScreen> {
                         Navigator.pushNamed(context, '/login');
                       },
                       child: Text(
-                        'Log In',
+                        'Have an account? Log In',
                         style: TextStyle(
                           color: Color(0xFFFBAA29),
                         ),
@@ -143,14 +179,6 @@ class _SignupScreenState extends State<SignupScreen> {
                   SizedBox(
                     height: maxSize.height * 0.07,
                   ),
-                  Container(
-                    alignment: Alignment.center,
-                    child: Text(_success == null
-                        ? ''
-                        : (_success
-                            ? 'Successfully registered ' + _userEmail
-                            : 'Registration failed')),
-                  )
                 ],
               ),
             ),
@@ -158,32 +186,5 @@ class _SignupScreenState extends State<SignupScreen> {
         ),
       ),
     );
-  }
-
-  void _register() async {
-    final User user = (await _auth.createUserWithEmailAndPassword(
-      email: _emailController.text,
-      password: _passwordController.text,
-    ))
-        .user;
-    if (user != null) {
-      setState(() {
-        _success = true;
-        _userEmail = user.email;
-      });
-      Navigator.pushNamed(context, '/homescreen');
-    } else {
-      setState(() {
-        _success = false;
-      });
-    }
-  }
-
-  @override
-  void dispose() {
-    _emailController.dispose();
-    _phoneController.dispose();
-    _passwordController.dispose();
-    super.dispose();
   }
 }

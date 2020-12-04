@@ -4,7 +4,7 @@ import 'package:GberaaDelivery/widgets/custom_button.dart';
 
 import 'package:flutter/material.dart';
 
-import '../constants.dart';
+import '../utils/constants.dart';
 
 class NewShipments extends StatefulWidget {
   @override

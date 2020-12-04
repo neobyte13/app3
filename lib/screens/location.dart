@@ -1,25 +1,62 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:GberaaDelivery/constants.dart';
+import 'package:GberaaDelivery/utils/constants.dart';
+import 'package:GberaaDelivery/models/ditem_model.dart';
+import 'package:GberaaDelivery/providers/ditem_provider.dart';
 import 'package:GberaaDelivery/widgets/common_app_bar.dart';
+import 'package:date_format/date_format.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class LocationSelect extends StatefulWidget {
+  final Ditem ditem;
+  LocationSelect({Key key, this.ditem}) : super(key: key);
+
   @override
   _LocationSelectState createState() => _LocationSelectState();
 }
 
 class _LocationSelectState extends State<LocationSelect> {
-  bool swapLocation = true;
-  final _db = FirebaseFirestore.instance;
-  DateTime selectedDate = DateTime.now();
-  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  final TextEditingController _pickupController = TextEditingController();
-  final TextEditingController _deliveryController = TextEditingController();
-  final TextEditingController _notesController = TextEditingController();
-  bool _success;
+  final TextEditingController pickupController = TextEditingController();
+
+  final TextEditingController deliveryController = TextEditingController();
+
+  final TextEditingController nameController = TextEditingController();
+
+  final TextEditingController phoneController = TextEditingController();
+
+  final TextEditingController notesController = TextEditingController();
+
+  @override
+  void dispose() {
+    pickupController.dispose();
+    deliveryController.dispose();
+    nameController.dispose();
+    phoneController.dispose();
+    notesController.dispose();
+    super.dispose();
+  }
+
+  @override
+  void initState() {
+    final ditemProvider = Provider.of<DitemProvider>(context, listen: false);
+    if (widget.ditem != null) {
+      //Edit
+      pickupController.text = '';
+      deliveryController.text = '';
+      nameController.text = '';
+      phoneController.text = '';
+      notesController.text = '';
+
+      ditemProvider.loadAll(widget.ditem);
+    } else {
+      //Add
+      ditemProvider.loadAll(null);
+    }
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
+    final ditemProvider = Provider.of<DitemProvider>(context);
     Size maxSize = MediaQuery.of(context).size;
     return Scaffold(
       backgroundColor: Colors.grey[100],
@@ -65,9 +102,7 @@ class _LocationSelectState extends State<LocationSelect> {
                         child: Hero(
                           tag: 2,
                           child: Image(
-                            image: swapLocation
-                                ? AssetImage('assets/images/1.png')
-                                : AssetImage('assets/images/3.png'),
+                            image: AssetImage('assets/images/3.png'),
                           ),
                         ),
                       ),
@@ -95,9 +130,7 @@ class _LocationSelectState extends State<LocationSelect> {
                         child: Hero(
                           tag: 1,
                           child: Image(
-                            image: swapLocation
-                                ? AssetImage('assets/images/3.png')
-                                : AssetImage('assets/images/1.png'),
+                            image: AssetImage('assets/images/1.png'),
                           ),
                         ),
                       ),
@@ -122,241 +155,262 @@ class _LocationSelectState extends State<LocationSelect> {
                     right: maxSize.width * 0.05,
                   ),
                   child: Container(
-                    child: Form(
-                      key: _formKey,
-                      child: Column(
-                        children: [
-                          SizedBox(
-                            height: maxSize.height * 0.07,
-                          ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                "${selectedDate.toLocal()}".split(' ')[0],
-                                style: kNormalText,
+                    child: Column(
+                      children: [
+                        SizedBox(
+                          height: maxSize.height * 0.07,
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              formatDate(
+                                  ditemProvider.date, [MM, ' ', d, ', ', yyyy]),
+                              style: kNormalText,
+                            ),
+                            IconButton(
+                              icon: Icon(
+                                Icons.calendar_today,
+                                color: Colors.orange,
                               ),
-                              InkWell(
-                                  onTap: () async {
-                                    final DateTime picked =
-                                        await showDatePicker(
-                                      context: context,
-                                      initialDate: selectedDate,
-                                      firstDate: DateTime(2020),
-                                      lastDate: DateTime(2021),
-                                      helpText: 'Select pickup date',
-                                      fieldLabelText: 'Pickup date',
-                                    );
-                                    if (picked != null &&
-                                        picked != selectedDate)
-                                      setState(() {
-                                        selectedDate = picked;
-                                      });
-                                  },
-                                  child: Icon(Icons.calendar_today)),
-                            ],
-                          ),
-                          SizedBox(
-                            height: maxSize.height * 0.04,
-                          ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: [
-                              Center(
-                                child: Text(
-                                  swapLocation ? 'Pickup' : 'Delivery',
-                                  style: kLightGreyText,
+                              onPressed: () {
+                                _pickDate(context, ditemProvider).then((value) {
+                                  if (value != null) {
+                                    ditemProvider.changeDate = value;
+                                  }
+                                });
+                              },
+                            ),
+                          ],
+                        ),
+                        SizedBox(
+                          height: maxSize.height * 0.02,
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            Center(
+                              child: Container(
+                                width: maxSize.width * 0.35,
+                                child: TextFormField(
+                                  controller: nameController,
+                                  decoration: const InputDecoration(
+                                      labelText: 'Receiver Name'),
+                                  onChanged: (String value) =>
+                                      ditemProvider.changeName = value,
                                 ),
                               ),
-                              GestureDetector(
-                                onTap: () {},
-                                child: Container(
-                                  child: Icon(
-                                    Icons.swap_horiz,
+                            ),
+                            Center(
+                              child: Container(
+                                child: Icon(
+                                  Icons.swap_horiz,
+                                  color: kMainColor,
+                                ),
+                              ),
+                            ),
+                            Center(
+                              child: Container(
+                                width: maxSize.width * 0.35,
+                                child: TextFormField(
+                                  controller: phoneController,
+                                  decoration: const InputDecoration(
+                                      labelText: 'Receiver\'s Phone'),
+                                  onChanged: (String value) =>
+                                      ditemProvider.changePhone = value,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        SizedBox(
+                          height: maxSize.height * 0.02,
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Container(
+                              width: maxSize.width * 0.4,
+                              child: TextFormField(
+                                controller: pickupController,
+                                decoration: const InputDecoration(
+                                    labelText: 'Pickup Address'),
+                                onChanged: (String value) =>
+                                    ditemProvider.changePickup = value,
+                              ),
+                            ),
+                            Container(
+                              width: maxSize.width * 0.4,
+                              child: TextFormField(
+                                controller: deliveryController,
+                                decoration: const InputDecoration(
+                                    labelText: 'Delivery Address'),
+                                onChanged: (String value) =>
+                                    ditemProvider.changeDelivery = value,
+                              ),
+                            ),
+                          ],
+                        ),
+                        SizedBox(
+                          height: maxSize.height * 0.02,
+                        ),
+                        Container(
+                          height: 1.0,
+                          width: maxSize.width,
+                          color: Colors.grey[800],
+                        ),
+                        SizedBox(
+                          height: maxSize.height * 0.02,
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Package Details',
+                                  style: kLightGreyText.copyWith(
                                     color: kMainColor,
+                                    fontSize: 10.0,
                                   ),
                                 ),
-                              ),
-                              Center(
-                                child: Text(
-                                  swapLocation ? 'Delivery' : 'PickUp',
-                                  style: kLightGreyText,
+                                SizedBox(
+                                  height: maxSize.height * 0.02,
                                 ),
-                              ),
-                            ],
-                          ),
-                          SizedBox(
-                            height: maxSize.height * 0.02,
-                          ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Container(
-                                width: maxSize.width * 0.4,
-                                child: TextFormField(
-                                  controller: _pickupController,
-                                  decoration: const InputDecoration(
-                                      labelText: 'Pickup Address'),
-                                  validator: (String value) {
-                                    if (value.isEmpty) {
-                                      return 'Please enter a valid address';
-                                    }
-                                    return null;
-                                  },
+                                Text(
+                                  'Basic Package',
+                                  style:
+                                      kNormalText.copyWith(color: Colors.white),
                                 ),
-                              ),
-                              Container(
-                                width: maxSize.width * 0.4,
-                                child: TextFormField(
-                                  controller: _deliveryController,
-                                  decoration: const InputDecoration(
-                                      labelText: 'Delivery Address'),
-                                  validator: (String value) {
-                                    if (value.isEmpty) {
-                                      return 'Please enter a valid address';
-                                    }
-                                    return null;
-                                  },
+                              ],
+                            ),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Container(
+                                  width: maxSize.width * 0.5,
+                                  child: TextFormField(
+                                    controller: notesController,
+                                    decoration: const InputDecoration(
+                                        labelText: 'Notes'),
+                                    onChanged: (String value) =>
+                                        ditemProvider.changeNotes = value,
+                                  ),
                                 ),
-                              ),
-                            ],
-                          ),
-                          SizedBox(
-                            height: maxSize.height * 0.02,
-                          ),
-                          Container(
-                            height: 1.0,
-                            width: maxSize.width,
-                            color: Colors.grey[800],
-                          ),
-                          SizedBox(
-                            height: maxSize.height * 0.02,
-                          ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'Package Details',
-                                    style: kLightGreyText.copyWith(
-                                      fontSize: 10.0,
-                                    ),
+                              ],
+                            ),
+                          ],
+                        ),
+                        SizedBox(
+                          height: maxSize.height * 0.07,
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  "\₦1000",
+                                  style: kMainHeading.copyWith(
+                                    color: kMainColor,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 25.0,
                                   ),
-                                  SizedBox(
-                                    height: maxSize.height * 0.02,
+                                ),
+                                Text(
+                                  'Estimated Price',
+                                  style: kLightGreyText.copyWith(
+                                    fontSize: 12.0,
                                   ),
-                                  Text(
-                                    'Basic Package',
-                                    style: kNormalText,
-                                  ),
-                                ],
-                              ),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Container(
-                                    width: maxSize.width * 0.5,
-                                    child: TextFormField(
-                                      controller: _notesController,
-                                      decoration: const InputDecoration(
-                                          labelText: 'Notes'),
-                                      validator: (String value) {
-                                        if (value.isEmpty) {
-                                          return 'Please enter additional notes';
-                                        }
-                                        return null;
-                                      },
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                          SizedBox(
-                            height: maxSize.height * 0.07,
-                          ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    "\₦1000",
-                                    style: kMainHeading.copyWith(
+                                ),
+                              ],
+                            ),
+                            Container(
+                              width: maxSize.width * 0.4,
+                              height: maxSize.height * 0.06,
+                              decoration: BoxDecoration(
+                                  color: kMainColor,
+                                  borderRadius: BorderRadius.circular(10),
+                                  boxShadow: [
+                                    BoxShadow(
                                       color: kMainColor,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 25.0,
+                                      offset: Offset(0.5, 0.5),
+                                      blurRadius: 5.0,
                                     ),
-                                  ),
-                                  Text(
-                                    'Estimated Price',
-                                    style: kLightGreyText.copyWith(
-                                      fontSize: 12.0,
+                                    BoxShadow(
+                                      color: Colors.black,
+                                      offset: Offset(-1.0, -1.0),
+                                      blurRadius: 10.0,
+                                      spreadRadius: 1.0,
                                     ),
-                                  ),
-                                ],
-                              ),
-                              Container(
-                                width: maxSize.width * 0.4,
-                                height: maxSize.height * 0.06,
-                                decoration: BoxDecoration(
-                                    color: kMainColor,
-                                    borderRadius: BorderRadius.circular(10),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: kMainColor,
-                                        offset: Offset(0.5, 0.5),
-                                        blurRadius: 5.0,
-                                      ),
-                                      BoxShadow(
-                                        color: Colors.black,
-                                        offset: Offset(-1.0, -1.0),
-                                        blurRadius: 10.0,
-                                        spreadRadius: 1.0,
-                                      ),
-                                    ]),
-                                child: Center(
-                                  child: InkWell(
-                                    onTap: () {
-                                      _db.collection("ditems").doc().set({
-                                        "owner": FirebaseAuth
-                                            .instance.currentUser.email,
-                                        "pickup": _pickupController.text,
-                                        "delivery": _deliveryController.text,
-                                        "notes": _notesController.text,
-                                        "date":
-                                            selectedDate.toLocal().toString(),
-                                      }).then((_) {
-                                        _pickupController.clear();
-                                        _deliveryController.clear();
-                                        _notesController.clear();
-                                        print(
-                                            'Success!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
-                                        Navigator.pushNamed(
-                                            context, '/viewshipments');
-                                      }).catchError((onError) {
-                                        print(onError);
-                                      });
-                                    },
-                                    child: Text(
-                                      'Submit',
-                                      style: kMainHeading.copyWith(
-                                          fontSize: 20.0,
-                                          fontWeight: FontWeight.w600),
-                                    ),
+                                  ]),
+                              child: Center(
+                                child: InkWell(
+                                  onTap: () {
+                                    ditemProvider.saveDitem();
+                                    Navigator.pushNamed(
+                                        context, '/viewshipments');
+                                  },
+                                  child: Text(
+                                    'Submit',
+                                    style: kMainHeading.copyWith(
+                                        fontSize: 20.0,
+                                        fontWeight: FontWeight.w600,
+                                        backgroundColor: kMainColor),
                                   ),
                                 ),
                               ),
-                              SizedBox(
-                                height: 10.0,
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
+                            ),
+                            SizedBox(
+                              height: 10.0,
+                            ),
+                            (widget.ditem != null)
+                                ? Container(
+                                    width: maxSize.width * 0.4,
+                                    height: maxSize.height * 0.06,
+                                    decoration: BoxDecoration(
+                                        color: Colors.red,
+                                        borderRadius: BorderRadius.circular(10),
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: kMainColor,
+                                            offset: Offset(0.5, 0.5),
+                                            blurRadius: 5.0,
+                                          ),
+                                          BoxShadow(
+                                            color: Colors.black,
+                                            offset: Offset(-1.0, -1.0),
+                                            blurRadius: 10.0,
+                                            spreadRadius: 1.0,
+                                          ),
+                                        ]),
+                                    child: Center(
+                                      child: InkWell(
+                                        onTap: () {
+                                          ditemProvider
+                                              .removeDitem(widget.ditem.id);
+                                          Navigator.pushNamed(
+                                              context, '/viewshipments');
+                                        },
+                                        child: Text(
+                                          'Delete',
+                                          style: kMainHeading.copyWith(
+                                              fontSize: 20.0,
+                                              fontWeight: FontWeight.w600,
+                                              backgroundColor: kMainColor),
+                                        ),
+                                      ),
+                                    ),
+                                  )
+                                : Container(),
+                            SizedBox(
+                              height: 10.0,
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
                   ),
                 ),
@@ -366,5 +420,15 @@ class _LocationSelectState extends State<LocationSelect> {
         ),
       ),
     );
+  }
+
+  Future<DateTime> _pickDate(
+      BuildContext context, DitemProvider ditemProvider) async {
+    final DateTime picked = await showDatePicker(
+        context: context,
+        initialDate: ditemProvider.date,
+        firstDate: DateTime(2020),
+        lastDate: DateTime(2021));
+    if (picked != null) return picked;
   }
 }

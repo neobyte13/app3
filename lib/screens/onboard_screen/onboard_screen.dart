@@ -45,7 +45,7 @@ class _OnBoardingPageState extends State<OnBoardingPage> {
       pages: [
         PageViewModel(
           title: "Welcome to Gberaa Delivery",
-          body: "Delivery anything and anywhere",
+          body: "Deliver anything and anywhere",
           image: _buildImage('1.png'),
           decoration: pageDecoration,
         ),

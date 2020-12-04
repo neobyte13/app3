@@ -1,6 +1,6 @@
 import 'dart:ui';
 
-import 'package:GberaaDelivery/constants.dart';
+import 'package:GberaaDelivery/utils/constants.dart';
 import 'package:GberaaDelivery/widgets/common_app_bar.dart';
 import 'package:GberaaDelivery/widgets/custom_input.dart';
 import 'package:flutter/material.dart';
