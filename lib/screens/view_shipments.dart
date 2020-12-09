@@ -68,6 +68,9 @@ class _ViewShipmentsState extends State<ViewShipments> {
                             },
                           );
                         }),
+                    SizedBox(
+                      height: maxSize.height * 0.07,
+                    ),
                   ],
                 ),
               ),

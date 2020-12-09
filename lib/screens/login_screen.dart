@@ -1,7 +1,8 @@
-import 'package:GberaaDelivery/providers/current_user.dart';
+//import 'package:GberaaDelivery/providers/current_user.dart';
 import 'package:GberaaDelivery/utils/constants.dart';
+import 'package:GberaaDelivery/utils/spdb.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+//import 'package:provider/provider.dart';
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -10,25 +11,25 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _phoneController = TextEditingController();
 
-  void _logInUser(String email, String password, BuildContext context) async {
-    CurrentUser _currentUser = Provider.of<CurrentUser>(context, listen: false);
+  // void _logInUser(String email, String password, BuildContext context) async {
+  //   CurrentUser _currentUser = Provider.of<CurrentUser>(context, listen: false);
 
-    try {
-      if (await _currentUser.logInUser(email, password)) {
-        Navigator.of(context).pushReplacementNamed('/homescreen');
-      } else {
-        Scaffold.of(context).showSnackBar(SnackBar(
-          content: Text('An error occured. Please try again'),
-          duration: Duration(seconds: 2),
-        ));
-      }
-    } catch (e) {
-      print(e);
-    }
-  }
+  //   try {
+  //     if (await _currentUser.logInUser(email, password)) {
+  //       Navigator.of(context).pushReplacementNamed('/homescreen');
+  //     } else {
+  //       Scaffold.of(context).showSnackBar(SnackBar(
+  //         content: Text('An error occured. Please try again'),
+  //         duration: Duration(seconds: 2),
+  //       ));
+  //     }
+  //   } catch (e) {
+  //     print(e);
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -53,12 +54,13 @@ class _LoginScreenState extends State<LoginScreen> {
                       height: maxSize.height * 0.03,
                     ),
                     TextFormField(
-                      controller: _emailController,
-                      decoration: const InputDecoration(labelText: 'Email'),
-                      keyboardType: TextInputType.emailAddress,
+                      keyboardType: TextInputType.name,
+                      controller: _nameController,
+                      decoration: const InputDecoration(
+                          labelText: 'What is your name?'),
                       validator: (String value) {
                         if (value.isEmpty) {
-                          return 'Please enter a valid email';
+                          return 'Please enter your full name';
                         }
                         return null;
                       },
@@ -67,12 +69,13 @@ class _LoginScreenState extends State<LoginScreen> {
                       height: maxSize.height * 0.03,
                     ),
                     TextFormField(
-                      obscureText: true,
-                      controller: _passwordController,
-                      decoration: const InputDecoration(labelText: 'Password'),
+                      keyboardType: TextInputType.number,
+                      controller: _phoneController,
+                      decoration: const InputDecoration(
+                          labelText: 'What is your phone number?'),
                       validator: (String value) {
                         if (value.isEmpty) {
-                          return 'Please enter a valid password';
+                          return 'Please enter a valid phone number';
                         }
                         return null;
                       },
@@ -100,22 +103,27 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                           ]),
                       alignment: Alignment.center,
-                      child: RaisedButton(
-                        color: kMainColor,
+                      child: InkWell(
                         highlightColor: kMainColor,
-                        onPressed: () {
+                        onTap: () {
                           if (_formKey.currentState.validate()) {
-                            _logInUser(_emailController.text,
-                                _passwordController.text, context);
-                          } else {
-                            Scaffold.of(context).showSnackBar(SnackBar(
-                              content: Text('Confirm the details you entered'),
-                              duration: Duration(seconds: 2),
-                            ));
+                            SharedDb.putString('name', _nameController.text);
+                            SharedDb.putString('phone', _phoneController.text);
+                            Navigator.pushReplacementNamed(
+                                context, '/homescreen');
                           }
+                          // if (_formKey.currentState.validate()) {
+                          //   _logInUser(_emailController.text,
+                          //       _passwordController.text, context);
+                          // } else {
+                          //   Scaffold.of(context).showSnackBar(SnackBar(
+                          //     content: Text('Confirm the details you entered'),
+                          //     duration: Duration(seconds: 2),
+                          //   ));
+                          // }
                         },
                         child: Text(
-                          'Login',
+                          'Get Started',
                           style: TextStyle(
                             backgroundColor: kMainColor,
                             decorationColor: kMainColor,
@@ -123,31 +131,31 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ),
                     ),
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            'Don\'t have an Account ?  ',
-                          ),
-                          GestureDetector(
-                            onTap: () {},
-                            child: InkWell(
-                              onTap: () {
-                                Navigator.pushNamed(context, '/signup');
-                              },
-                              child: Text(
-                                'Sign up Now!',
-                                style: TextStyle(
-                                  color: Color(0xFFFBAA29),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    )
+                    // Padding(
+                    //   padding: const EdgeInsets.all(8.0),
+                    //   child: Row(
+                    //     mainAxisAlignment: MainAxisAlignment.center,
+                    //     children: [
+                    //       Text(
+                    //         'Don\'t have an Account ?  ',
+                    //       ),
+                    //       GestureDetector(
+                    //         onTap: () {},
+                    //         child: InkWell(
+                    //           onTap: () {
+                    //             Navigator.pushNamed(context, '/signup');
+                    //           },
+                    //           child: Text(
+                    //             'Sign up Now!',
+                    //             style: TextStyle(
+                    //               color: Color(0xFFFBAA29),
+                    //             ),
+                    //           ),
+                    //         ),
+                    //       ),
+                    //     ],
+                    //   ),
+                    // )
                   ],
                 ),
               ),

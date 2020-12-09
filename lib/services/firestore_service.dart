@@ -1,18 +1,13 @@
 import 'package:GberaaDelivery/models/ditem_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 
 class FirestoreService {
   FirebaseFirestore _db = FirebaseFirestore.instance;
 
   //retrieve
   Stream<List<Ditem>> getDitems() {
-    return _db
-        .collection('ditems')
-        .where('owner', isEqualTo: FirebaseAuth.instance.currentUser)
-        .snapshots()
-        .map((snapshot) =>
-            snapshot.docs.map((doc) => Ditem.fromJson(doc.data())).toList());
+    return _db.collection('ditems').snapshots().map((snapshot) =>
+        snapshot.docs.map((doc) => Ditem.fromJson(doc.data())).toList());
   }
 
   //upsert

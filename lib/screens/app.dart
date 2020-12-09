@@ -5,11 +5,12 @@ import 'package:GberaaDelivery/screens/login_screen.dart';
 import 'package:GberaaDelivery/screens/new_shipments.dart';
 import 'package:GberaaDelivery/screens/onboard_screen/onboard_screen.dart';
 import 'package:GberaaDelivery/screens/shipment_create.dart';
-import 'package:GberaaDelivery/screens/signup_screen.dart';
+//import 'package:GberaaDelivery/screens/signup_screen.dart';
 import 'package:GberaaDelivery/screens/track_shipments.dart';
 import 'package:GberaaDelivery/screens/view_shipments.dart';
-import 'package:GberaaDelivery/providers/current_user.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:GberaaDelivery/utils/spdb.dart';
+//import 'package:GberaaDelivery/providers/current_user.dart';
+//import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -21,11 +22,11 @@ class App extends StatelessWidget {
         ChangeNotifierProvider<DitemProvider>(
           create: (context) => DitemProvider(),
         ),
-        ChangeNotifierProvider<CurrentUser>(
-          create: (context) => CurrentUser(),
-        ),
-        StreamProvider(
-            create: (context) => context.read<CurrentUser>().authState),
+        // ChangeNotifierProvider<CurrentUser>(
+        //   create: (context) => CurrentUser(),
+        // ),
+        // StreamProvider(
+        //     create: (context) => context.read<CurrentUser>().authState),
       ],
       child: MaterialApp(
           title: 'Gberaa Delivery',
@@ -38,7 +39,7 @@ class App extends StatelessWidget {
           routes: {
             '/': (context) => OnBoardingPage(),
             '/login': (context) => LoginScreen(),
-            '/signup': (context) => SignupScreen(),
+            //'/signup': (context) => SignupScreen(),
             '/homescreen': (context) => HomeScreen(),
             '/newshimpent': (context) => NewShipments(),
             '/viewshipments': (context) => ViewShipments(),
@@ -54,11 +55,13 @@ class App extends StatelessWidget {
 class LandingPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final curUser = context.watch<User>();
-
-    if (curUser != null) {
-      return HomeScreen();
-    }
-    return OnBoardingPage();
+    SharedDb.isLoggedIn().then((isLogged) {
+      if (isLogged) {
+        return Navigator.pushReplacementNamed(context, '/homescreen');
+      } else {
+        return Navigator.pushReplacementNamed(context, '/');
+      }
+    });
+    return CircularProgressIndicator();
   }
 }
