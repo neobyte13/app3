@@ -6,8 +6,8 @@ import 'package:GberaaDelivery/screens/onboard_screen/onboard_screen.dart';
 import 'package:GberaaDelivery/screens/shipment_create.dart';
 import 'package:GberaaDelivery/screens/track_shipments.dart';
 import 'package:GberaaDelivery/screens/view_shipments.dart';
-import 'package:GberaaDelivery/utils/spdb.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_session/flutter_session.dart';
 
 class App extends StatelessWidget {
   @override
@@ -30,21 +30,18 @@ class App extends StatelessWidget {
           '/shipmentcreate': (context) => ShipmentCreate(),
           '/trackshipments': (context) => TrackShipments(),
           '/location': (context) => LocationSelect(),
-          '/landing': (context) => LandingPage(),
+          '/landing': (context) => Landing(),
         });
   }
 }
 
-class LandingPage extends StatelessWidget {
+class Landing extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    SharedDb.isLoggedIn().then((isLogged) {
-      if (isLogged) {
-        return Navigator.pushReplacementNamed(context, '/homescreen');
-      } else {
-        return Navigator.pushReplacementNamed(context, '/');
-      }
-    });
-    return CircularProgressIndicator();
+    return FutureBuilder(
+        future: FlutterSession().get('user'),
+        builder: (context, snapshot) {
+          return snapshot.hasData ? HomeScreen() : OnBoardingPage();
+        });
   }
 }

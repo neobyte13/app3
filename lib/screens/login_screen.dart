@@ -1,8 +1,7 @@
-//import 'package:GberaaDelivery/providers/current_user.dart';
+import 'package:GberaaDelivery/models/user_model.dart';
 import 'package:GberaaDelivery/utils/constants.dart';
-import 'package:GberaaDelivery/utils/spdb.dart';
 import 'package:flutter/material.dart';
-//import 'package:provider/provider.dart';
+import 'package:flutter_session/flutter_session.dart';
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -14,22 +13,16 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
 
-  // void _logInUser(String email, String password, BuildContext context) async {
-  //   CurrentUser _currentUser = Provider.of<CurrentUser>(context, listen: false);
-
-  //   try {
-  //     if (await _currentUser.logInUser(email, password)) {
-  //       Navigator.of(context).pushReplacementNamed('/homescreen');
-  //     } else {
-  //       Scaffold.of(context).showSnackBar(SnackBar(
-  //         content: Text('An error occured. Please try again'),
-  //         duration: Duration(seconds: 2),
-  //       ));
-  //     }
-  //   } catch (e) {
-  //     print(e);
-  //   }
-  // }
+  Future<void> saveData(context) async {
+    User curUser =
+        User(name: _nameController.text, phone: _phoneController.text);
+    if (_formKey.currentState.validate()) {
+      await FlutterSession().set('user', curUser);
+      print('Success');
+      print('$_nameController.text => $_phoneController.text');
+      Navigator.pushReplacementNamed(context, '/homescreen');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -106,12 +99,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       child: InkWell(
                         highlightColor: kMainColor,
                         onTap: () {
-                          if (_formKey.currentState.validate()) {
-                            SharedDb.putString('name', _nameController.text);
-                            SharedDb.putString('phone', _phoneController.text);
-                            Navigator.pushReplacementNamed(
-                                context, '/homescreen');
-                          }
+                          saveData(context);
                           // if (_formKey.currentState.validate()) {
                           //   _logInUser(_emailController.text,
                           //       _passwordController.text, context);
