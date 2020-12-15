@@ -7,6 +7,7 @@ class Ditem {
   final String phone;
   final String date;
   final String notes;
+  final String owner;
   final DocumentReference reference;
 
   Ditem.fromMap(Map<String, dynamic> map, {this.reference})
@@ -16,12 +17,14 @@ class Ditem {
         assert(map['phone'] != null),
         assert(map['date'] != null),
         assert(map['notes'] != null),
+        assert(map['owner'] != null),
         pickup = map['pickup'],
         delivery = map['delivery'],
         name = map['name'],
         phone = map['phone'],
         date = map['date'],
-        notes = map['notes'];
+        notes = map['notes'],
+        owner = map['owner'];
 
   Ditem.fromSnapshot(DocumentSnapshot snapshot)
       : this.fromMap(snapshot.data(), reference: snapshot.reference);

@@ -2,6 +2,9 @@ import 'package:GberaaDelivery/models/ditem_model.dart';
 import 'package:GberaaDelivery/widgets/common_app_bar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_session/flutter_session.dart';
+
+dynamic curUser;
 
 class ViewShipments extends StatefulWidget {
   ViewShipments({Key key}) : super(key: key);
@@ -11,7 +14,10 @@ class ViewShipments extends StatefulWidget {
 
 Widget _buildBody(BuildContext context) {
   return StreamBuilder<QuerySnapshot>(
-    stream: FirebaseFirestore.instance.collection('ditems').snapshots(),
+    stream: FirebaseFirestore.instance
+        .collection('ditems')
+        .where('owner', isEqualTo: curUser.toString())
+        .snapshots(),
     builder: (context, snapshot) {
       if (!snapshot.hasData) return LinearProgressIndicator();
 
@@ -41,14 +47,25 @@ Widget _buildListItem(BuildContext context, DocumentSnapshot data) {
       ),
       child: ListTile(
         title: Text(record.name),
-        trailing: Text(record.name),
+        trailing: Text(record.date),
         onTap: () => print(record),
       ),
     ),
   );
 }
 
+getCurUser() async {
+  curUser = await FlutterSession().get('user');
+  print(curUser.toString());
+}
+
 class _ViewShipmentsState extends State<ViewShipments> {
+  @override
+  void initState() {
+    getCurUser();
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     Size maxSize = MediaQuery.of(context).size;

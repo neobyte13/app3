@@ -2,6 +2,7 @@ import 'package:GberaaDelivery/utils/constants.dart';
 import 'package:GberaaDelivery/widgets/common_app_bar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_session/flutter_session.dart';
 
 class LocationSelect extends StatefulWidget {
   @override
@@ -22,6 +23,8 @@ class _LocationSelectState extends State<LocationSelect> {
   CollectionReference ditemstore =
       FirebaseFirestore.instance.collection('ditems');
 
+  dynamic curUser;
+
   @override
   void dispose() {
     pickupController.dispose();
@@ -39,7 +42,13 @@ class _LocationSelectState extends State<LocationSelect> {
     nameController.text = '';
     phoneController.text = '';
     notesController.text = '';
+    getCurUser();
     super.initState();
+  }
+
+  getCurUser() async {
+    curUser = await FlutterSession().get('user');
+    print(curUser.toString());
   }
 
   Future<void> addDitem() {
@@ -52,6 +61,7 @@ class _LocationSelectState extends State<LocationSelect> {
           'phone': phoneController.text,
           'date': DateTime.now().toIso8601String(),
           'notes': notesController.text,
+          'owner': curUser.toString(),
         })
         .then((value) => print("Ditem Added"))
         .catchError((error) => print("Failed to add ditem: $error"));
