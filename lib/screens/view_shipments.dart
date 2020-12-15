@@ -1,11 +1,7 @@
-import 'package:GberaaDelivery/utils/constants.dart';
 import 'package:GberaaDelivery/models/ditem_model.dart';
-import 'package:GberaaDelivery/providers/ditem_provider.dart';
-import 'package:GberaaDelivery/screens/location.dart';
 import 'package:GberaaDelivery/widgets/common_app_bar.dart';
-import 'package:date_format/date_format.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 class ViewShipments extends StatefulWidget {
   ViewShipments({Key key}) : super(key: key);
@@ -13,10 +9,48 @@ class ViewShipments extends StatefulWidget {
   _ViewShipmentsState createState() => _ViewShipmentsState();
 }
 
+Widget _buildBody(BuildContext context) {
+  return StreamBuilder<QuerySnapshot>(
+    stream: FirebaseFirestore.instance.collection('ditems').snapshots(),
+    builder: (context, snapshot) {
+      if (!snapshot.hasData) return LinearProgressIndicator();
+
+      return _buildList(context, snapshot.data.docs);
+    },
+  );
+}
+
+Widget _buildList(BuildContext context, List<DocumentSnapshot> snapshot) {
+  return ListView(
+    shrinkWrap: true,
+    padding: const EdgeInsets.only(top: 20.0),
+    children: snapshot.map((data) => _buildListItem(context, data)).toList(),
+  );
+}
+
+Widget _buildListItem(BuildContext context, DocumentSnapshot data) {
+  final record = Ditem.fromSnapshot(data);
+
+  return Padding(
+    key: ValueKey(record.name),
+    padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+    child: Container(
+      decoration: BoxDecoration(
+        border: Border.all(color: Colors.grey),
+        borderRadius: BorderRadius.circular(5.0),
+      ),
+      child: ListTile(
+        title: Text(record.name),
+        trailing: Text(record.name),
+        onTap: () => print(record),
+      ),
+    ),
+  );
+}
+
 class _ViewShipmentsState extends State<ViewShipments> {
   @override
   Widget build(BuildContext context) {
-    final ditemProvider = Provider.of<DitemProvider>(context);
     Size maxSize = MediaQuery.of(context).size;
     return Scaffold(
       backgroundColor: Color(0xFF161615),
@@ -45,29 +79,7 @@ class _ViewShipmentsState extends State<ViewShipments> {
                     SizedBox(
                       height: maxSize.height * 0.07,
                     ),
-                    StreamBuilder<List<Ditem>>(
-                        stream: ditemProvider.ditems,
-                        builder: (context, snapshot) {
-                          return ListView.builder(
-                            itemCount: snapshot.data.length,
-                            itemBuilder: (context, index) {
-                              return ListTile(
-                                trailing: Icon(
-                                  Icons.edit,
-                                  color: kMainColor,
-                                ),
-                                title: Text(formatDate(
-                                    DateTime.parse(snapshot.data[index].date),
-                                    [MM, ' ', d, ', ', yyyy])),
-                                onTap: () {
-                                  Navigator.of(context).push(MaterialPageRoute(
-                                      builder: (context) => LocationSelect(
-                                          ditem: snapshot.data[index])));
-                                },
-                              );
-                            },
-                          );
-                        }),
+                    _buildBody(context),
                     SizedBox(
                       height: maxSize.height * 0.07,
                     ),

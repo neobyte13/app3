@@ -1,15 +1,9 @@
 import 'package:GberaaDelivery/utils/constants.dart';
-import 'package:GberaaDelivery/models/ditem_model.dart';
-import 'package:GberaaDelivery/providers/ditem_provider.dart';
 import 'package:GberaaDelivery/widgets/common_app_bar.dart';
-import 'package:date_format/date_format.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 class LocationSelect extends StatefulWidget {
-  final Ditem ditem;
-  LocationSelect({Key key, this.ditem}) : super(key: key);
-
   @override
   _LocationSelectState createState() => _LocationSelectState();
 }
@@ -25,6 +19,9 @@ class _LocationSelectState extends State<LocationSelect> {
 
   final TextEditingController notesController = TextEditingController();
 
+  CollectionReference ditemstore =
+      FirebaseFirestore.instance.collection('ditems');
+
   @override
   void dispose() {
     pickupController.dispose();
@@ -37,26 +34,31 @@ class _LocationSelectState extends State<LocationSelect> {
 
   @override
   void initState() {
-    final ditemProvider = Provider.of<DitemProvider>(context, listen: false);
-    if (widget.ditem != null) {
-      //Edit
-      pickupController.text = '';
-      deliveryController.text = '';
-      nameController.text = '';
-      phoneController.text = '';
-      notesController.text = '';
-
-      ditemProvider.loadAll(widget.ditem);
-    } else {
-      //Add
-      ditemProvider.loadAll(null);
-    }
+    pickupController.text = '';
+    deliveryController.text = '';
+    nameController.text = '';
+    phoneController.text = '';
+    notesController.text = '';
     super.initState();
+  }
+
+  Future<void> addDitem() {
+    // Call the ditemstore's CollectionReference to add a new user
+    return ditemstore
+        .add({
+          'pickup': pickupController.text,
+          'delivery': deliveryController.text,
+          'name': nameController.text,
+          'phone': phoneController.text,
+          'date': DateTime.now().toIso8601String(),
+          'notes': notesController.text,
+        })
+        .then((value) => print("Ditem Added"))
+        .catchError((error) => print("Failed to add ditem: $error"));
   }
 
   @override
   Widget build(BuildContext context) {
-    final ditemProvider = Provider.of<DitemProvider>(context);
     Size maxSize = MediaQuery.of(context).size;
     return Scaffold(
       backgroundColor: Colors.grey[100],
@@ -164,8 +166,7 @@ class _LocationSelectState extends State<LocationSelect> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              formatDate(
-                                  ditemProvider.date, [MM, ' ', d, ', ', yyyy]),
+                              DateTime.now().toIso8601String(),
                               style: kNormalText,
                             ),
                             IconButton(
@@ -173,13 +174,7 @@ class _LocationSelectState extends State<LocationSelect> {
                                 Icons.calendar_today,
                                 color: Colors.orange,
                               ),
-                              onPressed: () {
-                                _pickDate(context, ditemProvider).then((value) {
-                                  if (value != null) {
-                                    ditemProvider.changeDate = value;
-                                  }
-                                });
-                              },
+                              onPressed: () {},
                             ),
                           ],
                         ),
@@ -196,8 +191,6 @@ class _LocationSelectState extends State<LocationSelect> {
                                   controller: nameController,
                                   decoration: const InputDecoration(
                                       labelText: 'Receiver Name'),
-                                  onChanged: (String value) =>
-                                      ditemProvider.changeName = value,
                                 ),
                               ),
                             ),
@@ -216,8 +209,6 @@ class _LocationSelectState extends State<LocationSelect> {
                                   controller: phoneController,
                                   decoration: const InputDecoration(
                                       labelText: 'Receiver\'s Phone'),
-                                  onChanged: (String value) =>
-                                      ditemProvider.changePhone = value,
                                 ),
                               ),
                             ),
@@ -235,8 +226,6 @@ class _LocationSelectState extends State<LocationSelect> {
                                 controller: pickupController,
                                 decoration: const InputDecoration(
                                     labelText: 'Pickup Address'),
-                                onChanged: (String value) =>
-                                    ditemProvider.changePickup = value,
                               ),
                             ),
                             Container(
@@ -245,8 +234,6 @@ class _LocationSelectState extends State<LocationSelect> {
                                 controller: deliveryController,
                                 decoration: const InputDecoration(
                                     labelText: 'Delivery Address'),
-                                onChanged: (String value) =>
-                                    ditemProvider.changeDelivery = value,
                               ),
                             ),
                           ],
@@ -294,8 +281,6 @@ class _LocationSelectState extends State<LocationSelect> {
                                     controller: notesController,
                                     decoration: const InputDecoration(
                                         labelText: 'Notes'),
-                                    onChanged: (String value) =>
-                                        ditemProvider.changeNotes = value,
                                   ),
                                 ),
                               ],
@@ -349,7 +334,7 @@ class _LocationSelectState extends State<LocationSelect> {
                               child: Center(
                                 child: InkWell(
                                   onTap: () {
-                                    ditemProvider.saveDitem();
+                                    addDitem();
                                     Navigator.pushNamed(
                                         context, '/viewshipments');
                                   },
@@ -366,45 +351,6 @@ class _LocationSelectState extends State<LocationSelect> {
                             SizedBox(
                               height: 10.0,
                             ),
-                            (widget.ditem != null)
-                                ? Container(
-                                    width: maxSize.width * 0.4,
-                                    height: maxSize.height * 0.06,
-                                    decoration: BoxDecoration(
-                                        color: Colors.red,
-                                        borderRadius: BorderRadius.circular(10),
-                                        boxShadow: [
-                                          BoxShadow(
-                                            color: kMainColor,
-                                            offset: Offset(0.5, 0.5),
-                                            blurRadius: 5.0,
-                                          ),
-                                          BoxShadow(
-                                            color: Colors.black,
-                                            offset: Offset(-1.0, -1.0),
-                                            blurRadius: 10.0,
-                                            spreadRadius: 1.0,
-                                          ),
-                                        ]),
-                                    child: Center(
-                                      child: InkWell(
-                                        onTap: () {
-                                          ditemProvider
-                                              .removeDitem(widget.ditem.id);
-                                          Navigator.pushNamed(
-                                              context, '/viewshipments');
-                                        },
-                                        child: Text(
-                                          'Delete',
-                                          style: kMainHeading.copyWith(
-                                              fontSize: 20.0,
-                                              fontWeight: FontWeight.w600,
-                                              backgroundColor: kMainColor),
-                                        ),
-                                      ),
-                                    ),
-                                  )
-                                : Container(),
                             SizedBox(
                               height: 10.0,
                             ),
@@ -420,15 +366,5 @@ class _LocationSelectState extends State<LocationSelect> {
         ),
       ),
     );
-  }
-
-  Future<DateTime> _pickDate(
-      BuildContext context, DitemProvider ditemProvider) async {
-    final DateTime picked = await showDatePicker(
-        context: context,
-        initialDate: ditemProvider.date,
-        firstDate: DateTime(2020),
-        lastDate: DateTime(2021));
-    if (picked != null) return picked;
   }
 }

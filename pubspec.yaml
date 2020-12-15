@@ -11,11 +11,11 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  cloud_firestore: ^0.14.3
+  cloud_firestore: ^0.14.4
   cupertino_icons: ^1.0.0
   date_format: ^1.0.9
   firebase_auth: ^0.18.3+1
-  firebase_core: ^0.5.2+1
+  firebase_core: ^0.5.3
   google_fonts: ^1.1.1
   introduction_screen: ^1.0.9
   provider: ^4.3.2+2

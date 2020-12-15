@@ -1,44 +1,31 @@
-import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Ditem {
-  final String id;
   final String pickup;
   final String delivery;
   final String name;
   final String phone;
   final String date;
   final String notes;
+  final DocumentReference reference;
 
-  Ditem(
-      {this.name,
-      this.phone,
-      @required this.id,
-      this.pickup,
-      this.delivery,
-      this.date,
-      this.notes});
+  Ditem.fromMap(Map<String, dynamic> map, {this.reference})
+      : assert(map['pickup'] != null),
+        assert(map['delivery'] != null),
+        assert(map['name'] != null),
+        assert(map['phone'] != null),
+        assert(map['date'] != null),
+        assert(map['notes'] != null),
+        pickup = map['pickup'],
+        delivery = map['delivery'],
+        name = map['name'],
+        phone = map['phone'],
+        date = map['date'],
+        notes = map['notes'];
 
-  factory Ditem.fromJson(Map<String, dynamic> json) {
-    return Ditem(
-      id: json['id'],
-      pickup: json['pickup'],
-      delivery: json['delivery'],
-      name: json['name'],
-      phone: json['phone'],
-      date: json['date'],
-      notes: json['notes'],
-    );
-  }
+  Ditem.fromSnapshot(DocumentSnapshot snapshot)
+      : this.fromMap(snapshot.data(), reference: snapshot.reference);
 
-  Map<String, dynamic> toMap() {
-    return {
-      'id': id,
-      'pickup': pickup,
-      'delivery': delivery,
-      'name': name,
-      'phone': phone,
-      'date': date,
-      'notes': notes,
-    };
-  }
+  @override
+  String toString() => "Ditem<$name:$date>";
 }
