@@ -48,7 +48,7 @@ Widget _buildListItem(BuildContext context, DocumentSnapshot data) {
       child: ListTile(
         title: Text('Package To: ' + record.name),
         subtitle: Text('Status: Pending'),
-        trailing: Text(record.date),
+        trailing: Text('Ref No: ' + record.date),
         onTap: () => print(record),
       ),
     ),
