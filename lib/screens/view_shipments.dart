@@ -46,7 +46,8 @@ Widget _buildListItem(BuildContext context, DocumentSnapshot data) {
         borderRadius: BorderRadius.circular(5.0),
       ),
       child: ListTile(
-        title: Text(record.name),
+        title: Text('Package To: ' + record.name),
+        subtitle: Text('Status: Pending'),
         trailing: Text(record.date),
         onTap: () => print(record),
       ),
