@@ -181,6 +181,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.8.1"
+  flutter_paystack:
+    dependency: "direct main"
+    description:
+      name: flutter_paystack
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.0.4+1"
   flutter_session:
     dependency: "direct main"
     description:
@@ -492,4 +499,4 @@ packages:
     version: "2.2.1"
 sdks:
   dart: ">=2.10.0-110 <=2.11.0-213.1.beta"
-  flutter: ">=1.17.0 <2.0.0"
+  flutter: ">=1.20.1 <2.0.0"

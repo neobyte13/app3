@@ -363,8 +363,7 @@ class _LocationSelectState extends State<LocationSelect> {
                               child: InkWell(
                                 onTap: () {
                                   addDitem();
-                                  Navigator.pushNamed(
-                                      context, '/viewshipments');
+                                  Navigator.pushNamed(context, '/payment');
                                 },
                                 child: Text(
                                   'Submit',

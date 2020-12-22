@@ -3,6 +3,7 @@ import 'package:GberaaDelivery/screens/location.dart';
 import 'package:GberaaDelivery/screens/login_screen.dart';
 import 'package:GberaaDelivery/screens/new_shipments.dart';
 import 'package:GberaaDelivery/screens/onboard_screen/onboard_screen.dart';
+import 'package:GberaaDelivery/screens/payment.dart';
 import 'package:GberaaDelivery/screens/shipment_create.dart';
 import 'package:GberaaDelivery/screens/track_shipments.dart';
 import 'package:GberaaDelivery/screens/view_shipments.dart';
@@ -31,6 +32,7 @@ class App extends StatelessWidget {
           '/trackshipments': (context) => TrackShipments(),
           '/location': (context) => LocationSelect(),
           '/landing': (context) => Landing(),
+          '/payment': (context) => PaymentPage(),
         });
   }
 }
